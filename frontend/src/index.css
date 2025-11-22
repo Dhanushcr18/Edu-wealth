@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 text-gray-900;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* 3D Glass Button Styles */
+  .btn {
+    @apply px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform;
+    @apply shadow-lg hover:shadow-2xl hover:-translate-y-0.5;
+    @apply backdrop-blur-sm border border-white/20;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600;
+    @apply text-white hover:from-blue-700 hover:via-purple-700 hover:to-pink-700;
+    @apply focus:ring-4 focus:ring-purple-500/50 focus:ring-offset-2;
+    @apply relative overflow-hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0;
+    @apply transform -skew-x-12 -translate-x-full;
+    transition: transform 0.6s;
+  }
+
+  .btn-primary:hover::before {
+    @apply translate-x-full;
+  }
+
+  .btn-secondary {
+    @apply bg-white/80 backdrop-blur-lg text-gray-800 hover:bg-white;
+    @apply border-2 border-purple-200 hover:border-purple-400;
+    @apply focus:ring-4 focus:ring-purple-500/30;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border-2 border-gray-300;
+    @apply text-gray-700 hover:bg-gray-50;
+    @apply focus:ring-4 focus:ring-gray-500/30;
+    @apply transition-all duration-300;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-sm rounded-xl;
+  }
+
+  /* 3D Glass Card Styles */
+  .card {
+    @apply bg-white/80 backdrop-blur-xl rounded-3xl border border-white/20;
+    @apply shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)];
+    @apply transition-all duration-500 transform hover:-translate-y-1;
+    @apply p-6 relative overflow-hidden;
+  }
+
+  .card::before {
+    content: '';
+    @apply absolute -top-1/2 -right-1/2 w-full h-full;
+    @apply bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10;
+    @apply rounded-full blur-3xl;
+    @apply opacity-0 group-hover:opacity-100 transition-opacity duration-700;
+  }
+
+  /* Glassmorphism Input */
+  .input {
+    @apply w-full px-5 py-3.5 rounded-2xl;
+    @apply bg-white/60 backdrop-blur-lg border-2 border-white/40;
+    @apply focus:bg-white/80 focus:border-purple-400;
+    @apply focus:ring-4 focus:ring-purple-500/20;
+    @apply transition-all duration-300;
+    @apply shadow-inner;
+  }
+
+  /* Animated Gradient Background */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600;
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Floating Animation */
+  .floating {
+    animation: floating 6s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(3deg); }
+  }
+
+  /* Pulse Glow Effect */
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(147, 51, 234, 0.5), 0 0 80px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  /* 3D Transform Card */
+  .card-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .card-3d:hover {
+    transform: rotateY(5deg) rotateX(5deg);
+  }
+
+  /* Shimmer Effect */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Container */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold;
+    @apply bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800;
+    @apply shadow-md backdrop-blur-sm border border-white/40;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    @apply h-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500;
+    @apply rounded-full shadow-lg;
+    animation: progress-slide 2s ease-out;
+  }
+
+  @keyframes progress-slide {
+    from { width: 0%; }
+  }
+}

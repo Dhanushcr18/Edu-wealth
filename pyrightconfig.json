@@ -1,0 +1,15 @@
+{
+  "include": [
+    "crawler"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "backend",
+    "frontend"
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.10",
+  "pythonPlatform": "Windows"
+}
