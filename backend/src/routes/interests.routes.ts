@@ -20,16 +20,13 @@ router.get('/', async (_req: any, res: Response): Promise<void> => {
   }
 });
 
-// Protected routes
-router.use(authenticate);
-
 // Validation schemas
 const updateInterestsSchema = z.object({
   interests: z.array(z.string()).min(1, 'At least one interest is required'),
 });
 
 // GET /api/me/interests
-router.get('/me', async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userInterests = await prisma.userInterest.findMany({
       where: { userId: req.user!.userId },
@@ -46,7 +43,7 @@ router.get('/me', async (req: AuthRequest, res: Response): Promise<void> => {
 });
 
 // POST /api/interests/me - Save user interests and find courses
-router.post('/me', async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { interests } = updateInterestsSchema.parse(req.body);
 
@@ -66,16 +63,24 @@ router.post('/me', async (req: AuthRequest, res: Response): Promise<void> => {
     const interestIds: number[] = [];
     
     for (const interestName of limitedInterests) {
-      const slug = interestName.toLowerCase().replace(/\s+/g, '-');
-      
-      // Create or find interest
-      const interest = await prisma.interest.upsert({
-        where: { slug },
-        create: { name: interestName, slug },
-        update: {},
-      });
-      
-      interestIds.push(interest.id);
+      // Slugify: lowercase and replace any non-alphanumeric characters with hyphens
+      const slug = interestName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      try {
+        // Create or find interest
+        const interest = await prisma.interest.upsert({
+          where: { slug },
+          create: { name: interestName, slug },
+          update: {},
+        });
+
+        interestIds.push(interest.id);
+      } catch (err) {
+        console.error(`Failed to upsert interest '${interestName}' (slug '${slug}')`, err);
+      }
     }
 
     // Create user interests one by one to avoid transaction issues

@@ -17,18 +17,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      refreshUser();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
   const refreshUser = async () => {
     try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
       const response = await api.get('/me');
       setUser(response.data);
     } catch (error) {
@@ -41,6 +38,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  useEffect(() => {
+    // Check if user is logged in on mount
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      refreshUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
   const login = async (email: string, password: string) => {
     try {
       const response = await api.post<AuthResponse>('/auth/login', { email, password });
@@ -49,6 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
+      setLoading(false);
     } catch (error: any) {
       console.error('Login error:', error);
       throw error;
@@ -62,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     setUser(userData);
+    setLoading(false);
   };
 
   const logout = async () => {

@@ -83,25 +83,13 @@ function analyzeSpending(category: string, itemName: string, description?: strin
 
   // Check category-based rules for specific cases
   if (category === 'Food & Drinks') {
-    // Check if it's specifically junk/fast food
-    const junkFoodTerms = ['burger', 'pizza', 'fries', 'chips', 'junk', 'fast food', 'soda', 'cola'];
-    const isJunkFood = junkFoodTerms.some(term => combinedText.includes(term));
-    
-    if (isJunkFood) {
-      return {
-        isEssential: false,
-        showCourses: true,
-        message: '🍔 Junk food is harmful to health! Why not invest this money in learning a skill that lasts forever?',
-        category: 'Unhealthy',
-      };
-    }
-    
-    // If it's food but not junk food and not explicitly healthy, assume it's reasonable food
+    // For Food & Drinks, if it's not in essential keywords, show courses
+    // This prevents random items like "bug" from being marked as healthy
     return {
-      isEssential: true,
-      showCourses: false,
-      message: '✅ Good choice! Healthy eating is important for your well-being.',
-      category: 'Essential',
+      isEssential: false,
+      showCourses: true,
+      message: '💡 Consider if this is truly necessary. You could invest in a skill that benefits you long-term!',
+      category: 'Non-Essential Food',
     };
   }
 
@@ -468,7 +456,7 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: Response): Prom
   }
 });
 
-// DELETE /api/expenses/:id - Delete expense
+// DELETE /api/expenses/:id - Delete an expense
 router.delete('/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

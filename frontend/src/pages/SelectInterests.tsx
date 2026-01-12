@@ -4,12 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
 import { AcademicCapIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
-interface Interest {
-  id: number;
-  name: string;
-  slug: string;
-}
-
 const popularInterests = [
   'Web Development',
   'Mobile App Development',
@@ -35,6 +29,7 @@ const SelectInterests = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [customInterest, setCustomInterest] = useState('');
   const [loading, setLoading] = useState(false);
+  const MAX_INTERESTS = 10;
 
   useEffect(() => {
     // Check if user already has interests
@@ -55,18 +50,28 @@ const SelectInterests = () => {
   };
 
   const toggleInterest = (interest: string) => {
-    setSelectedInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : [...prev, interest]
-    );
+    setSelectedInterests((prev) => {
+      if (prev.includes(interest)) {
+        return prev.filter((i) => i !== interest);
+      }
+      if (prev.length >= MAX_INTERESTS) {
+        alert(`You can select up to ${MAX_INTERESTS} interests to start. We'll personalize further later!`);
+        return prev;
+      }
+      return [...prev, interest];
+    });
   };
 
   const addCustomInterest = () => {
-    if (customInterest.trim() && !selectedInterests.includes(customInterest.trim())) {
-      setSelectedInterests([...selectedInterests, customInterest.trim()]);
-      setCustomInterest('');
+    const value = customInterest.trim();
+    if (!value) return;
+    if (selectedInterests.includes(value)) return;
+    if (selectedInterests.length >= MAX_INTERESTS) {
+      alert(`You can select up to ${MAX_INTERESTS} interests.`);
+      return;
     }
+    setSelectedInterests([...selectedInterests, value]);
+    setCustomInterest('');
   };
 
   const handleSubmit = async () => {
@@ -77,9 +82,10 @@ const SelectInterests = () => {
 
     setLoading(true);
     try {
-      // Save interests and get personalized courses
+      // Limit to MAX_INTERESTS for faster personalization
+      const interestsToSave = selectedInterests.slice(0, MAX_INTERESTS);
       await api.post('/interests/me', {
-        interests: selectedInterests,
+        interests: interestsToSave,
       });
 
       // Redirect to dashboard where courses will be loaded
@@ -93,12 +99,12 @@ const SelectInterests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-3xl animate-floating"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-pink-400/30 to-purple-400/30 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-emerald-400/30 to-teal-400/30 rounded-full blur-3xl animate-floating"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-amber-400/30 to-orange-400/30 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-teal-400/20 to-cyan-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '4s' }}></div>
       </div>
 
       <div className="container-custom py-12 relative z-10">
@@ -106,8 +112,8 @@ const SelectInterests = () => {
         <div className="text-center mb-12 animate-floating">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <AcademicCapIcon className="h-20 w-20 text-primary-600 animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary-400/40 blur-2xl rounded-full"></div>
+              <AcademicCapIcon className="h-20 w-20 text-emerald-600 animate-pulse-glow" />
+              <div className="absolute inset-0 bg-emerald-400/40 blur-2xl rounded-full"></div>
             </div>
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-600 bg-clip-text text-transparent">
@@ -122,10 +128,10 @@ const SelectInterests = () => {
         <div className="max-w-5xl mx-auto card-3d backdrop-blur-xl bg-white/80 p-10">
           <div className="flex items-center space-x-3 mb-6">
             <div className="relative">
-              <SparklesIcon className="h-10 w-10 text-primary-600 animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary-400/30 blur-lg rounded-full"></div>
+              <SparklesIcon className="h-10 w-10 text-emerald-600 animate-pulse-glow" />
+              <div className="absolute inset-0 bg-emerald-400/30 blur-lg rounded-full"></div>
             </div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               What are you interested in learning?
             </h2>
           </div>
@@ -142,7 +148,7 @@ const SelectInterests = () => {
                 onClick={() => toggleInterest(interest)}
                 className={`px-5 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
                   selectedInterests.includes(interest)
-                    ? 'bg-gradient-to-br from-primary-600 to-purple-600 text-white shadow-xl scale-105 animate-pulse-glow'
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl scale-105 animate-pulse-glow'
                     : 'bg-white/60 backdrop-blur-sm text-gray-700 hover:bg-white/80 shadow-md border border-gray-200'
                 }`}
                 style={{ animationDelay: `${index * 0.05}s` }}
@@ -164,11 +170,11 @@ const SelectInterests = () => {
                 onChange={(e) => setCustomInterest(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addCustomInterest()}
                 placeholder="e.g., Music Production, Cooking, etc."
-                className="flex-1 px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all backdrop-blur-sm bg-white/60"
+                className="flex-1 px-5 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all backdrop-blur-sm bg-white/60"
               />
               <button
                 onClick={addCustomInterest}
-                className="px-8 py-3 bg-gradient-to-r from-secondary-600 to-purple-600 text-white rounded-xl hover:shadow-xl transition-all transform hover:scale-105 font-semibold"
+                className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-xl transition-all transform hover:scale-105 font-semibold"
               >
                 Add +
               </button>
@@ -177,15 +183,15 @@ const SelectInterests = () => {
 
           {/* Selected Interests */}
           {selectedInterests.length > 0 && (
-            <div className="mb-10 p-6 rounded-2xl bg-gradient-to-br from-primary-50 to-purple-50 border-2 border-primary-100">
+            <div className="mb-10 p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-100">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                <span>✅ Selected Interests ({selectedInterests.length})</span>
+                <span>✅ Selected Interests ({selectedInterests.length}{selectedInterests.length > MAX_INTERESTS ? ` • showing first ${MAX_INTERESTS}` : ''})</span>
               </h3>
               <div className="flex flex-wrap gap-3">
                 {selectedInterests.map((interest) => (
                   <span
                     key={interest}
-                    className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
                     {interest}
                     <button
@@ -207,7 +213,7 @@ const SelectInterests = () => {
             className={`w-full py-5 rounded-xl font-bold text-lg text-white transition-all duration-300 transform ${
               loading || selectedInterests.length === 0
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:shadow-2xl hover:scale-105 shadow-xl animate-gradient-shift'
+                : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:shadow-2xl hover:scale-105 shadow-xl animate-gradient-shift'
             }`}
           >
             {loading ? (

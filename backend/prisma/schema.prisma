@@ -6,14 +6,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url = env("DATABASE_URL")
 }
 
 model User {
-  id            String   @id @default(uuid()) @db.Uuid
+  id            String   @id @default(uuid())
   email         String   @unique
-  passwordHash  String   @map("password_hash")
+  passwordHash  String?  @map("password_hash")
+  googleId      String?  @unique @map("google_id")
   name          String?
   budgetAmount  Decimal? @map("budget_amount") @db.Decimal(10, 2)
   currency      String   @default("INR") @db.VarChar(5)
@@ -41,7 +42,7 @@ model Interest {
 
 model UserInterest {
   id         Int      @id @default(autoincrement())
-  userId     String   @map("user_id") @db.Uuid
+  userId     String   @map("user_id")
   interestId Int      @map("interest_id")
   createdAt  DateTime @default(now()) @map("created_at")
 
@@ -55,7 +56,7 @@ model UserInterest {
 }
 
 model Course {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid())
   title        String
   providerName String   @map("provider_name") @db.VarChar(50)
   providerSlug String   @map("provider_slug") @db.VarChar(50)
@@ -64,7 +65,7 @@ model Course {
   currency     String?  @db.VarChar(5)
   rating       Decimal? @db.Decimal(3, 2)
   duration     String?  @db.VarChar(50)
-  categories   Json?    @db.JsonB
+  categories   Json?    @db.Json
   thumbnailUrl String?  @map("thumbnail_url")
   description  String?  @db.Text
   sourceHash   String   @unique @map("source_hash") @db.VarChar(64)
@@ -81,8 +82,8 @@ model Course {
 
 model UserSavedCourse {
   id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id") @db.Uuid
-  courseId  String   @map("course_id") @db.Uuid
+  userId    String   @map("user_id")
+  courseId  String   @map("course_id")
   addedAt   DateTime @default(now()) @map("added_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -95,9 +96,9 @@ model UserSavedCourse {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  token     String   @unique
-  userId    String   @map("user_id") @db.Uuid
+  id        String   @id @default(uuid())
+  token     String   @unique @db.VarChar(500)
+  userId    String   @map("user_id")
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -109,8 +110,8 @@ model RefreshToken {
 }
 
 model Expense {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
   category    String   @db.VarChar(50)  // e.g., "Food & Drinks", "Entertainment", "Shopping", "Transport"
   itemName    String   @map("item_name") @db.VarChar(100)  // e.g., "Burger", "Movie Ticket", "Coffee"
   amount      Decimal  @db.Decimal(10, 2)

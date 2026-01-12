@@ -57,11 +57,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-floating"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
       </div>
 
       {/* Navigation */}
@@ -70,10 +70,10 @@ const Dashboard = () => {
           <div className="flex justify-between items-center">
             <Link to="/dashboard" className="flex items-center space-x-2 group">
               <div className="relative">
-                <AcademicCapIcon className="h-8 w-8 text-primary-600 animate-pulse-glow" />
-                <div className="absolute inset-0 bg-primary-400/30 blur-lg rounded-full group-hover:bg-primary-400/50 transition-all"></div>
+                <AcademicCapIcon className="h-8 w-8 text-emerald-600 animate-pulse-glow" />
+                <div className="absolute inset-0 bg-emerald-400/30 blur-lg rounded-full group-hover:bg-emerald-400/50 transition-all"></div>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 EduWealth
               </span>
             </Link>
@@ -96,7 +96,7 @@ const Dashboard = () => {
 
       {/* Header */}
       <div className="relative py-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 animate-gradient-shift"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 animate-gradient-shift"></div>
         <div className="absolute inset-0 backdrop-blur-3xl bg-black/10"></div>
         <div className="container-custom relative z-10">
           <div className="text-center text-white">
@@ -158,7 +158,7 @@ const Dashboard = () => {
                   )}
                 </div>
                 <div className="p-6">
-                  <h3 className="text-lg font-bold mb-2 text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold mb-2 text-gray-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
                     {course.title}
                   </h3>
                   <p className="text-sm text-gray-500 mb-3 font-medium">{course.providerName}</p>
@@ -171,12 +171,12 @@ const Dashboard = () => {
                     <div>
                       {course.price ? (
                         <div className="flex items-center space-x-1">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                             {course.currency} {course.price}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                           Free
                         </span>
                       )}

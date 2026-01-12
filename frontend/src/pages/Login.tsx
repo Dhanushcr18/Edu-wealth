@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { AcademicCapIcon } from '@heroicons/react/24/outline';
+import GoogleLoginButton from '../components/GoogleLoginButton';
 
 const loginSchema = Yup.object({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -14,6 +15,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   const formik = useFormik({
     initialValues: {
@@ -25,7 +28,10 @@ const Login = () => {
       try {
         setError('');
         await login(values.email, values.password);
-        navigate('/dashboard');
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 100);
       } catch (err: any) {
         setError(err.response?.data?.error || 'Failed to login');
       }
@@ -33,21 +39,21 @@ const Login = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-3xl animate-floating"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-pink-400/30 to-purple-400/30 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-emerald-400/30 to-teal-400/30 rounded-full blur-3xl animate-floating"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-amber-400/30 to-orange-400/30 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8 animate-floating">
           <Link to="/" className="inline-flex items-center space-x-2 group">
             <div className="relative">
-              <AcademicCapIcon className="h-12 w-12 text-primary-600 animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary-400/30 blur-xl rounded-full group-hover:bg-primary-400/50 transition-all"></div>
+              <AcademicCapIcon className="h-12 w-12 text-emerald-600 animate-pulse-glow" />
+              <div className="absolute inset-0 bg-emerald-400/30 blur-xl rounded-full group-hover:bg-emerald-400/50 transition-all"></div>
             </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               EduWealth
             </span>
           </Link>
@@ -61,14 +67,25 @@ const Login = () => {
 
         <div className="card-3d p-8 backdrop-blur-xl bg-white/80">
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
+            <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-700 rounded-2xl shadow-md">
+              <p className="font-semibold">⚠️ {error}</p>
             </div>
           )}
 
-          <form onSubmit={formik.handleSubmit} className="space-y-6">
+          <GoogleLoginButton text="Sign in with Google" />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-3 bg-white text-gray-500">Or continue with email</span>
+            </div>
+          </div>
+
+          <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-2">
                 Email Address
               </label>
               <input
@@ -76,6 +93,7 @@ const Login = () => {
                 type="email"
                 autoComplete="email"
                 className="input"
+                placeholder="you@example.com"
                 {...formik.getFieldProps('email')}
               />
               {formik.touched.email && formik.errors.email && (
@@ -84,7 +102,7 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-800 mb-2">
                 Password
               </label>
               <input
@@ -92,6 +110,7 @@ const Login = () => {
                 type="password"
                 autoComplete="current-password"
                 className="input"
+                placeholder="Enter your password"
                 {...formik.getFieldProps('password')}
               />
               {formik.touched.password && formik.errors.password && (
@@ -102,7 +121,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className="w-full btn btn-primary py-3"
+              className="w-full btn btn-primary py-3 text-base"
             >
               {formik.isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
@@ -111,7 +130,7 @@ const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-500">
+              <Link to="/signup" className="font-semibold text-emerald-600 hover:text-emerald-700">
                 Sign up for free
               </Link>
             </p>

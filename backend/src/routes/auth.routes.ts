@@ -1,8 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import passport from '../config/passport';
 import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
+import { config } from '../config';
 
 const router = Router();
 
@@ -109,6 +111,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Check if user has a password (not OAuth user)
+    if (!user.passwordHash) {
+      res.status(401).json({ error: 'Please sign in with Google' });
+      return;
+    }
+
     // Verify password
     const isValid = await comparePassword(password, user.passwordHash);
 
@@ -202,5 +210,50 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// GET /api/auth/google - Initiate Google OAuth
+router.get('/google', 
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    session: false 
+  })
+);
+
+// GET /api/auth/google/callback - Google OAuth callback
+router.get('/google/callback',
+  passport.authenticate('google', { 
+    failureRedirect: `${config.frontendUrl}/login?error=auth_failed`,
+    session: false 
+  }),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as any;
+
+      if (!user) {
+        res.redirect(`${config.frontendUrl}/login?error=no_user`);
+        return;
+      }
+
+      // Generate tokens
+      const accessToken = generateAccessToken({ userId: user.id, email: user.email });
+      const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+
+      // Store refresh token
+      await prisma.refreshToken.create({
+        data: {
+          token: refreshToken,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        },
+      });
+
+      // Redirect to frontend with tokens
+      res.redirect(`${config.frontendUrl}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+    } catch (error) {
+      console.error('Google callback error:', error);
+      res.redirect(`${config.frontendUrl}/login?error=callback_failed`);
+    }
+  }
+);
 
 export default router;

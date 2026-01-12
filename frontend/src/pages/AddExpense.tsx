@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import api from '../api/client';
@@ -42,8 +42,7 @@ const categories = [
 ];
 
 const AddExpense = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { } = useAuth();
   const [recommendations, setRecommendations] = useState<Course[]>([]);
   const [motivationMessage, setMotivationMessage] = useState('');
   const [showResults, setShowResults] = useState(false);
@@ -83,21 +82,21 @@ const AddExpense = () => {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating"></div>
-          <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-floating"></div>
+          <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
         </div>
 
         <nav className="container-custom py-6 relative z-10">
           <div className="flex justify-between items-center">
             <Link to="/dashboard" className="flex items-center space-x-2 group">
               <div className="relative">
-                <AcademicCapIcon className="h-8 w-8 text-primary-600 animate-pulse-glow" />
-                <div className="absolute inset-0 bg-primary-400/30 blur-lg rounded-full group-hover:bg-primary-400/50 transition-all"></div>
+                <AcademicCapIcon className="h-8 w-8 text-emerald-600 animate-pulse-glow" />
+                <div className="absolute inset-0 bg-emerald-400/30 blur-lg rounded-full group-hover:bg-emerald-400/50 transition-all"></div>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 EduWealth
               </span>
             </Link>
@@ -144,7 +143,7 @@ const AddExpense = () => {
                   {recommendations.map((course, index) => (
                     <div 
                       key={course.id} 
-                      className="card-3d group"
+                      className="card group"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="relative overflow-hidden rounded-t-2xl">
@@ -170,18 +169,23 @@ const AddExpense = () => {
                         <h4 className="font-bold text-gray-900 mb-3 mt-1 line-clamp-2 group-hover:text-primary-600 transition-colors">
                           {course.title}
                         </h4>
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                        <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                             ₹{course.price}
                           </span>
-                          <a
-                            href={course.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-primary btn-sm shadow-lg"
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log('Opening course:', course.url);
+                              window.open(course.url, '_blank', 'noopener,noreferrer');
+                            }}
+                            aria-label={`Enroll in ${course.title}`}
+                            className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-lg hover:shadow-xl hover:brightness-110 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                           >
                             Enroll →
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -209,7 +213,7 @@ const AddExpense = () => {
               >
                 Add Another Expense
               </button>
-              <Link to="/expenses" className="btn btn-primary">
+              <Link to="/my-expenses" className="btn btn-primary">
                 View All Expenses
               </Link>
             </div>
@@ -220,26 +224,26 @@ const AddExpense = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-floating"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-full blur-3xl animate-floating" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <nav className="container-custom py-6 relative z-10">
         <div className="flex justify-between items-center">
           <Link to="/dashboard" className="flex items-center space-x-2 group">
             <div className="relative">
-              <AcademicCapIcon className="h-8 w-8 text-primary-600 animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary-400/30 blur-lg rounded-full group-hover:bg-primary-400/50 transition-all"></div>
+              <AcademicCapIcon className="h-8 w-8 text-emerald-600 animate-pulse-glow" />
+              <div className="absolute inset-0 bg-emerald-400/30 blur-lg rounded-full group-hover:bg-emerald-400/50 transition-all"></div>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               EduWealth
             </span>
           </Link>
           <div className="flex items-center space-x-4">
-            <Link to="/expenses" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+            <Link to="/my-expenses" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors">
               My Expenses
             </Link>
             <Link to="/dashboard" className="btn btn-secondary shadow-lg">
@@ -262,20 +266,20 @@ const AddExpense = () => {
 
           <div className="card-3d backdrop-blur-xl bg-white/90 p-10">
             {error && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl shadow-lg">
+              <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-2xl shadow-lg">
                 <p className="text-red-700 font-medium">⚠️ {error}</p>
               </div>
             )}
 
             <form onSubmit={formik.handleSubmit} className="space-y-7">
               <div>
-                <label htmlFor="category" className="block text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                <label htmlFor="category" className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
                   <span>📂</span>
                   <span>Category</span>
                 </label>
                 <select
                   id="category"
-                  className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
                   {...formik.getFieldProps('category')}
                 >
                   <option value="" className="text-gray-400">Select a category</option>
@@ -291,7 +295,7 @@ const AddExpense = () => {
               </div>
 
               <div>
-                <label htmlFor="itemName" className="block text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                <label htmlFor="itemName" className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
                   <span>🛒</span>
                   <span>What did you spend on?</span>
                 </label>
@@ -308,7 +312,7 @@ const AddExpense = () => {
               </div>
 
               <div>
-                <label htmlFor="amount" className="block text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                <label htmlFor="amount" className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
                   <span>💰</span>
                   <span>Amount (₹)</span>
                 </label>
@@ -331,7 +335,7 @@ const AddExpense = () => {
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                <label htmlFor="description" className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
                   <span>📝</span>
                   <span>Description (Optional)</span>
                 </label>
@@ -347,7 +351,7 @@ const AddExpense = () => {
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
-                className="w-full py-5 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-primary-600 via-purple-600 to-pink-600 hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 animate-gradient-shift"
+                className="w-full py-5 rounded-2xl font-bold text-lg text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 animate-gradient-shift"
               >
                 {formik.isSubmitting ? (
                   <span className="flex items-center justify-center space-x-2">
@@ -364,16 +368,16 @@ const AddExpense = () => {
             </form>
           </div>
 
-          <div className="mt-10 card-3d backdrop-blur-xl bg-gradient-to-br from-blue-50/90 to-indigo-50/90 border-2 border-blue-200/50 p-8">
+          <div className="mt-10 card-3d backdrop-blur-xl bg-gradient-to-br from-emerald-50/90 to-teal-50/90 border-2 border-emerald-200/50 p-8">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
                   <span className="text-2xl">💡</span>
                 </div>
               </div>
               <div>
-                <h3 className="font-bold text-xl text-blue-900 mb-2">Pro Tip</h3>
-                <p className="text-blue-800 text-base leading-relaxed">
+                <h3 className="font-bold text-xl text-emerald-900 mb-2">Pro Tip</h3>
+                <p className="text-emerald-800 text-base leading-relaxed">
                   Every time you spend money, we'll show you courses at similar prices. 
                   This helps you realize how small expenses add up and could be redirected toward learning! 🚀
                 </p>

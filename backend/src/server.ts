@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import passport from './config/passport';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
@@ -16,7 +17,14 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:3001', 'http://localhost:3000'],
+  // Allow common local dev origins (Vite 5173, React 3000/3001) and configured frontend URL
+  origin: [
+    config.frontendUrl,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3001',
+    'http://localhost:3000',
+  ],
   credentials: true,
 }));
 
@@ -31,6 +39,9 @@ app.use('/api/', limiter);
 // Parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize Passport
+app.use(passport.initialize());
 
 // Logging
 if (config.env === 'development') {
@@ -59,8 +70,8 @@ app.use((_req, res) => {
 // Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
-app.listen(config.port, () => {
+// Start server (bind to all interfaces to avoid localhost issues)
+app.listen(config.port, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${config.port} in ${config.env} mode`);
   console.log(`📚 API: http://localhost:${config.port}/api`);
   console.log(`💚 Health: http://localhost:${config.port}/health`);
@@ -73,3 +84,5 @@ process.on('unhandledRejection', (err: Error) => {
 });
 
 export default app;
+
+

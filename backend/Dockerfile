@@ -1,24 +1,22 @@
-FROM node:18-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
-COPY package*.json ./
-RUN npm install
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    default-libmysqlclient-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy prisma schema
-COPY prisma ./prisma/
+# Install Python dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Copy source code
+# Copy application code
 COPY . .
-
-# Build TypeScript
-RUN npm run build
 
 EXPOSE 4000
 
-# Run migrations and start
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+# Run migrations and start server
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:4000"]

@@ -5,9 +5,6 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// All routes require authentication
-router.use(authenticate);
-
 // Validation schemas
 const updateBudgetSchema = z.object({
   budgetAmount: z.number().positive(),
@@ -21,7 +18,7 @@ const updateProfileSchema = z.object({
 });
 
 // GET /api/me
-router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.userId },
@@ -61,7 +58,7 @@ router.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
 });
 
 // PUT /api/me
-router.put('/', async (req: AuthRequest, res: Response): Promise<void> => {
+router.put('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const data = updateProfileSchema.parse(req.body);
 
@@ -89,7 +86,7 @@ router.put('/', async (req: AuthRequest, res: Response): Promise<void> => {
 });
 
 // PUT /api/me/budget
-router.put('/budget', async (req: AuthRequest, res: Response): Promise<void> => {
+router.put('/budget', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { budgetAmount, currency } = updateBudgetSchema.parse(req.body);
 

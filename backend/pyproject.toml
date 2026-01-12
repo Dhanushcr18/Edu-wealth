@@ -1,0 +1,28 @@
+# VS Code Python Settings
+[tool.pylance]
+typeCheckingMode = "basic"
+
+[tool.isort]
+profile = "django"
+known_django = "django"
+known_first_party = ["api", "eduwealth"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.black]
+line-length = 120
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''

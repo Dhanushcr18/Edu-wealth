@@ -186,11 +186,8 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// Protected routes for saving courses
-router.use(authenticate);
-
 // POST /api/me/saved-courses - Save a course
-router.post('/me/saved-courses', async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/me/saved-courses', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { courseId } = saveCourseSchema.parse(req.body);
 
@@ -242,7 +239,7 @@ router.post('/me/saved-courses', async (req: AuthRequest, res: Response): Promis
 });
 
 // GET /api/me/saved-courses - Get saved courses
-router.get('/me/saved-courses', async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/me/saved-courses', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const savedCourses = await prisma.userSavedCourse.findMany({
       where: { userId: req.user!.userId },
@@ -267,7 +264,7 @@ router.get('/me/saved-courses', async (req: AuthRequest, res: Response): Promise
 });
 
 // DELETE /api/me/saved-courses/:courseId - Remove saved course
-router.delete('/me/saved-courses/:courseId', async (req: AuthRequest, res: Response): Promise<void> => {
+router.delete('/me/saved-courses/:courseId', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     await prisma.userSavedCourse.delete({
       where: {
