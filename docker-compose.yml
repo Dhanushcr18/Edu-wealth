@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
-    container_name: eduwealth-db
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: eduwealth
-      MYSQL_USER: edu
-      MYSQL_PASSWORD: edupass
-    volumes:
-      - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "edu", "-pedupass"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -26,17 +8,12 @@ services:
     container_name: eduwealth-backend
     env_file: ./backend/.env
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mysql://edu:edupass@db:3306/eduwealth
-    depends_on:
-      db:
-        condition: service_healthy
+      - DJANGO_ENV=development
     ports:
-      - "4000:4000"
+      - "8000:8000"
     volumes:
       - ./backend:/app
-      - /app/node_modules
-    command: npm run dev
+    command: python manage.py runserver 0.0.0.0:8000
 
   frontend:
     build:
@@ -44,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: eduwealth-frontend
     environment:
-      - VITE_API_URL=http://localhost:4000
+      - VITE_API_URL=http://localhost:8000
     ports:
       - "3000:3000"
     volumes:
@@ -53,6 +30,3 @@ services:
     command: npm run dev
     stdin_open: true
     tty: true
-
-volumes:
-  db_data:
