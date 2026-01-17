@@ -1,7 +1,16 @@
 import axios from 'axios';
 
-// Prefer 127.0.0.1 to avoid potential localhost resolution issues
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000';
+// Resolve API base URL robustly for local dev
+const envUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
+const isLocal = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+);
+// Force 8000 on local to avoid stale env pointing to 4000
+const API_URL = isLocal ? 'http://127.0.0.1:8000' : (envUrl || 'http://127.0.0.1:8000');
+
+// Log API base URL once on init to help debug env issues
+// eslint-disable-next-line no-console
+console.log('[API] baseURL =', `${API_URL}/api`);
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,

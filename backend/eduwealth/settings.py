@@ -131,12 +131,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'api.User'
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    os.getenv('FRONTEND_URL', 'http://localhost:3000'),
-    'http://localhost:3001',
-    'http://localhost:3000',
-]
+CORS_ALLOW_ALL_ORIGINS = True  # For development
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+]
 
 # REST Framework Settings
 REST_FRAMEWORK = {
@@ -146,15 +148,31 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseFormParser',
+        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
     ],
+    # Throttle rates must use DRF's "<number>/<period>" format where
+    # period is one of "s", "m", "h", or "d". The previous
+    # configuration used "15min", which caused a KeyError in
+    # rest_framework.throttling.parse_rate. For local development we
+    # simply allow up to RATE_LIMIT_MAX_REQUESTS per minute.
     'DEFAULT_THROTTLE_RATES': {
-        'anon': os.getenv('RATE_LIMIT_MAX_REQUESTS', '100') + '/15min',
-        'user': os.getenv('RATE_LIMIT_MAX_REQUESTS', '100') + '/15min',
+        'anon': os.getenv('RATE_LIMIT_MAX_REQUESTS', '100') + '/m',
+        'user': os.getenv('RATE_LIMIT_MAX_REQUESTS', '100') + '/m',
     },
-    'EXCEPTION_HANDLER': 'api.utils.exception_handler.custom_exception_handler',
+    # Use DRF's default exception handler during local debugging so we
+    # can see full tracebacks for errors.
+    # 'EXCEPTION_HANDLER': 'api.utils.exception_handler.custom_exception_handler',
 }
 
 # JWT Settings

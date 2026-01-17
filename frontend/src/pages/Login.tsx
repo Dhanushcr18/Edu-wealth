@@ -4,7 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { AcademicCapIcon } from '@heroicons/react/24/outline';
-import GoogleLoginButton from '../components/GoogleLoginButton';
+
 
 const loginSchema = Yup.object({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -71,17 +71,6 @@ const Login = () => {
               <p className="font-semibold">⚠️ {error}</p>
             </div>
           )}
-
-          <GoogleLoginButton text="Sign in with Google" />
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-500">Or continue with email</span>
-            </div>
-          </div>
 
           <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div>

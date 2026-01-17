@@ -1,7 +1,5 @@
 import React from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000';
-
 interface GoogleLoginButtonProps {
   text?: string;
 }
@@ -11,7 +9,8 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
 }) => {
   const handleGoogleLogin = () => {
     // Redirect to backend Google OAuth endpoint
-    window.location.href = `${API_URL}/api/auth/google`;
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   return (

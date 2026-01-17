@@ -4,7 +4,6 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { AcademicCapIcon } from '@heroicons/react/24/outline';
-import GoogleLoginButton from '../components/GoogleLoginButton';
 
 const signupSchema = Yup.object({
   name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
@@ -121,17 +120,6 @@ const Signup = () => {
             </div>
           )}
 
-          <GoogleLoginButton text="Sign up with Google" />
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-500">Or continue with email</span>
-            </div>
-          </div>
-
           <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-800 mb-2">
@@ -139,11 +127,15 @@ const Signup = () => {
               </label>
               <input
                 id="name"
+                name="name"
                 type="text"
                 autoComplete="name"
                 className="input"
                 placeholder="e.g., Priya Menon"
-                {...formik.getFieldProps('name')}
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={formik.isSubmitting}
               />
               {formik.touched.name && formik.errors.name && (
                 <p className="mt-1 text-sm text-red-600">{formik.errors.name}</p>
@@ -156,11 +148,15 @@ const Signup = () => {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 autoComplete="email"
                 className="input"
                 placeholder="you@example.com"
-                {...formik.getFieldProps('email')}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={formik.isSubmitting}
               />
               {formik.touched.email && formik.errors.email && (
                 <p className="mt-1 text-sm text-red-600">{formik.errors.email}</p>
@@ -176,11 +172,15 @@ const Signup = () => {
               </div>
               <input
                 id="password"
+                name="password"
                 type="password"
                 autoComplete="new-password"
                 className="input"
                 placeholder="Add uppercase, number, and symbol"
-                {...formik.getFieldProps('password')}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={formik.isSubmitting}
               />
               <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div className={`h-full ${passwordStrength.color} ${passwordStrength.width} transition-all duration-500`}></div>

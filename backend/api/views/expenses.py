@@ -190,13 +190,39 @@ def search_courses_online(price_range, currency):
     return [c for c in sample_courses if c['price'] >= price_range * 0.3 and c['price'] <= price_range * 1.5][:3]
 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def create_expense(request):
+def expenses(request):
     """
-    POST /api/expenses
-    Add expense and get course recommendations if non-essential.
+    GET /api/expenses - Get user's expenses with optional filters
+    POST /api/expenses - Add expense and get course recommendations if non-essential
     """
+    if request.method == 'GET':
+        start_date = request.GET.get('startDate')
+        end_date = request.GET.get('endDate')
+        category = request.GET.get('category')
+        
+        expenses_qs = Expense.objects.filter(user=request.user)
+        
+        if start_date:
+            expenses_qs = expenses_qs.filter(date__gte=start_date)
+        if end_date:
+            expenses_qs = expenses_qs.filter(date__lte=end_date)
+        if category:
+            expenses_qs = expenses_qs.filter(category=category)
+        
+        serializer = ExpenseSerializer(expenses_qs, many=True)
+        
+        # Calculate total
+        total = expenses_qs.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        
+        return Response({
+            'expenses': serializer.data,
+            'total': float(total),
+            'count': expenses_qs.count()
+        })
+    
+    # POST method
     # Validate required fields
     category = request.data.get('category')
     item_name = request.data.get('itemName')
@@ -282,38 +308,6 @@ def create_expense(request):
         }
     
     return Response(response_data, status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_expenses(request):
-    """
-    GET /api/expenses
-    Get user's expenses with optional filters.
-    """
-    start_date = request.GET.get('startDate')
-    end_date = request.GET.get('endDate')
-    category = request.GET.get('category')
-    
-    expenses = Expense.objects.filter(user=request.user)
-    
-    if start_date:
-        expenses = expenses.filter(date__gte=start_date)
-    if end_date:
-        expenses = expenses.filter(date__lte=end_date)
-    if category:
-        expenses = expenses.filter(category=category)
-    
-    serializer = ExpenseSerializer(expenses, many=True)
-    
-    # Calculate total
-    total = expenses.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    
-    return Response({
-        'expenses': serializer.data,
-        'total': float(total),
-        'count': expenses.count()
-    })
 
 
 @api_view(['GET'])

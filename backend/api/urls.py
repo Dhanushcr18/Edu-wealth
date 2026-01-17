@@ -8,6 +8,7 @@ urlpatterns = [
     path('auth/refresh', auth.refresh_token, name='refresh_token'),
     path('auth/logout', auth.logout, name='logout'),
     path('auth/google', auth.google_auth, name='google_auth'),
+    path('auth/google/callback', auth.google_callback, name='google_callback'),
     
     # User routes
     path('me', user.get_user, name='get_user'),
@@ -16,8 +17,8 @@ urlpatterns = [
     
     # Interests routes
     path('interests', interests.get_interests, name='get_interests'),
-    path('interests/me', interests.get_user_interests, name='get_user_interests'),
-    path('interests/me', interests.save_user_interests, name='save_user_interests'),
+    # Single endpoint handles both GET (fetch) and POST (save)
+    path('interests/me', interests.user_interests, name='user_interests'),
     
     # Courses routes
     path('courses', courses.get_courses, name='get_courses'),
@@ -26,8 +27,7 @@ urlpatterns = [
     path('courses/save/<uuid:course_id>', courses.unsave_course, name='unsave_course'),
     
     # Expenses routes
-    path('expenses', expenses.create_expense, name='create_expense'),
-    path('expenses', expenses.get_expenses, name='get_expenses'),
+    path('expenses', expenses.expenses, name='expenses'),
     path('expenses/<uuid:expense_id>', expenses.get_expense, name='get_expense'),
     path('expenses/<uuid:expense_id>', expenses.delete_expense, name='delete_expense'),
 ]
