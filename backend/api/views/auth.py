@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import check_password
 from django.utils import timezone
 from django.shortcuts import redirect
 from datetime import timedelta
+from typing import Dict, Any
 import logging
 import os
 import requests
@@ -19,7 +20,7 @@ from ..utils.google_oauth import verify_google_token
 logger = logging.getLogger(__name__)
 
 
-def generate_tokens_for_user(user):
+def generate_tokens_for_user(user: User) -> Dict[str, str]:
     """Generate access and refresh tokens for a user."""
     refresh = JWTRefreshToken.for_user(user)
     
@@ -37,8 +38,11 @@ def generate_tokens_for_user(user):
         # Don't fail login if token persistence fails
         logger.error(f"Failed to persist refresh token: {e}")
     
+    # Type assertion for Pylance - access_token is a valid attribute
+    access_token_str = str(refresh.access_token)  # type: ignore
+    
     return {
-        'access_token': str(refresh.access_token),
+        'access_token': access_token_str,
         'refresh_token': str(refresh),
     }
 
@@ -58,7 +62,8 @@ def signup(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    data = serializer.validated_data
+    # validated_data is guaranteed to exist after is_valid() returns True
+    data: Dict[str, Any] = serializer.validated_data  # type: ignore
     
     # Check if user already exists
     if User.objects.filter(email=data['email']).exists():
@@ -107,7 +112,8 @@ def login(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        data = serializer.validated_data
+        # validated_data is guaranteed to exist after is_valid() returns True
+        data: Dict[str, Any] = serializer.validated_data  # type: ignore
         logger.info(f"Login attempt for: {data['email']}")
         
         # Find user
@@ -173,8 +179,9 @@ def refresh_token(request):
             {'error': 'Validation failed', 'details': serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
-    refresh_token_str = serializer.validated_data['refresh_token']
+    # validated_data is guaranteed to exist after is_valid() returns True
+    data: Dict[str, Any] = serializer.validated_data  # type: ignore
+    refresh_token_str = data['refresh_token']
     
     # Verify token exists in database
     try:
@@ -196,7 +203,8 @@ def refresh_token(request):
     # Generate new access token
     try:
         refresh = JWTRefreshToken(refresh_token_str)
-        access_token = str(refresh.access_token)
+        # Type assertion for Pylance - access_token is a valid attribute
+        access_token = str(refresh.access_token)  # type: ignore
         
         return Response({
             'accessToken': access_token,
@@ -215,12 +223,18 @@ def logout(request):
     POST /api/auth/logout
     Logout and invalidate refresh token.
     """
+    # Handle both cases: with or without refresh token in request
+    if not request.data:
+        return Response({'message': 'Logged out successfully'})
+    
     serializer = RefreshTokenSerializer(data=request.data)
     
     if not serializer.is_valid():
         return Response({'message': 'Logged out successfully'})
     
-    refresh_token_str = serializer.validated_data.get('refresh_token')
+    # validated_data is guaranteed to exist after is_valid() returns True
+    data: Dict[str, Any] = serializer.validated_data  # type: ignore
+    refresh_token_str = data.get('refresh_token')
     
     if refresh_token_str:
         RefreshTokenModel.objects.filter(token=refresh_token_str).delete()
@@ -265,8 +279,9 @@ def google_callback(request):
     GET /api/auth/google/callback
     Handle Google OAuth callback.
     """
-    code = request.GET.get('code')
-    error = request.GET.get('error')
+    # Type assertions for request.GET access
+    code: Any = request.GET.get('code')  # type: ignore
+    error: Any = request.GET.get('error')  # type: ignore
     
     if error:
         # Redirect to frontend with error
@@ -290,28 +305,38 @@ def google_callback(request):
             'redirect_uri': google_callback_url,
             'grant_type': 'authorization_code',
         })
-        
-        token_data = token_response.json()
+        token_data: Dict[str, Any] = token_response.json()
         
         if 'error' in token_data:
             frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
-            return redirect(f"{frontend_url}/login?error={token_data['error']}")
+            error_msg = token_data.get('error', 'unknown')
+            return redirect(f"{frontend_url}/login?error={error_msg}")
         
         # Get user info from Google
-        access_token = token_data['access_token']
+        access_token = token_data.get('access_token', '')
+        if not access_token:
+            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+            return redirect(f"{frontend_url}/login?error=no_access_token")
+        
         user_info_response = requests.get(
             'https://www.googleapis.com/oauth2/v2/userinfo',
             headers={'Authorization': f'Bearer {access_token}'}
         )
-        
-        user_info = user_info_response.json()
+        user_info: Dict[str, Any] = user_info_response.json()
         
         # Find or create user
+        google_id = user_info.get('id')
+        email = user_info.get('email')
+        
+        if not google_id or not email:
+            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+            return redirect(f"{frontend_url}/login?error=invalid_user_info")
+        
         user, created = User.objects.get_or_create(
-            google_id=user_info['id'],
+            google_id=google_id,
             defaults={
-                'email': user_info['email'],
-                'name': user_info.get('name', user_info['email']),
+                'email': email,
+                'name': user_info.get('name', email),
             }
         )
         
