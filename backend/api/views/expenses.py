@@ -1,3 +1,4 @@
+import logging
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +8,8 @@ from datetime import datetime
 from decimal import Decimal
 from ..models import Expense, Course
 from ..serializers import ExpenseSerializer
+
+logger = logging.getLogger(__name__)
 
 
 def analyze_spending(category, item_name, description=None):
@@ -223,10 +226,12 @@ def expenses(request):
         })
     
     # POST method
+    logger.info("Received expense payload: %s", request.data)
+
     # Validate required fields
     category = request.data.get('category')
-    item_name = request.data.get('itemName')
-    amount = request.data.get('amount')
+    item_name = request.data.get('itemName') or request.data.get('item_name')
+    amount = request.data.get('amount') or request.data.get('amount_raw')
     
     if not category or not item_name or not amount:
         return Response(

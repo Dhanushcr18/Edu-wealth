@@ -48,6 +48,7 @@ const AddExpense = () => {
   const [showResults, setShowResults] = useState(false);
   const [isEssential, setIsEssential] = useState(false);
   const [error, setError] = useState('');
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -65,9 +66,14 @@ const AddExpense = () => {
     onSubmit: async (values) => {
       try {
         setError('');
+        setSubmitAttempted(true);
         const response = await api.post<ExpenseResponse>('/expenses', {
-          ...values,
+          category: values.category,
+          itemName: values.itemName,
+          item_name: values.itemName,
           amount: parseFloat(values.amount),
+          amount_raw: values.amount,
+          description: values.description || undefined,
         });
 
         setMotivationMessage(response.data.analysis.message);
@@ -76,9 +82,17 @@ const AddExpense = () => {
         setShowResults(true);
       } catch (err: any) {
         setError(err.response?.data?.error || 'Failed to add expense');
+        setSubmitAttempted(true);
       }
     },
   });
+
+  // Clear error when user starts typing
+  const handleFieldChange = (field: string) => (e: any) => {
+    setError('');
+    setSubmitAttempted(false);
+    formik.handleChange(e);
+  };
 
   if (showResults) {
     return (
@@ -208,6 +222,8 @@ const AddExpense = () => {
                 onClick={() => {
                   setShowResults(false);
                   formik.resetForm();
+                  setError('');
+                  setSubmitAttempted(false);
                 }}
                 className="btn btn-outline"
               >
@@ -265,7 +281,7 @@ const AddExpense = () => {
           </div>
 
           <div className="card-3d backdrop-blur-xl bg-white/90 p-10">
-            {error && (
+            {error && submitAttempted && (
               <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-2xl shadow-lg">
                 <p className="text-red-700 font-medium">⚠️ {error}</p>
               </div>
@@ -279,8 +295,11 @@ const AddExpense = () => {
                 </label>
                 <select
                   id="category"
+                  name="category"
+                  value={formik.values.category}
+                  onChange={handleFieldChange('category')}
+                  onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
-                  {...formik.getFieldProps('category')}
                 >
                   <option value="" className="text-gray-400">Select a category</option>
                   {categories.map((cat) => (
@@ -301,10 +320,13 @@ const AddExpense = () => {
                 </label>
                 <input
                   id="itemName"
+                  name="itemName"
                   type="text"
                   placeholder="e.g., Burger, Coffee, Movie Ticket"
+                  value={formik.values.itemName}
+                  onChange={handleFieldChange('itemName')}
+                  onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md placeholder:text-gray-400"
-                  {...formik.getFieldProps('itemName')}
                 />
                 {formik.touched.itemName && formik.errors.itemName && (
                   <p className="mt-2 text-sm text-red-600 font-medium">⚠️ {formik.errors.itemName}</p>
@@ -322,11 +344,14 @@ const AddExpense = () => {
                   </div>
                   <input
                     id="amount"
+                    name="amount"
                     type="number"
                     step="0.01"
                     placeholder="60"
+                    value={formik.values.amount}
+                    onChange={handleFieldChange('amount')}
+                    onBlur={formik.handleBlur}
                     className="w-full pl-14 pr-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-bold text-xl shadow-sm hover:shadow-md placeholder:text-gray-400"
-                    {...formik.getFieldProps('amount')}
                   />
                 </div>
                 {formik.touched.amount && formik.errors.amount && (
@@ -341,10 +366,13 @@ const AddExpense = () => {
                 </label>
                 <textarea
                   id="description"
+                  name="description"
                   rows={4}
                   placeholder="Any additional notes..."
+                  value={formik.values.description}
+                  onChange={handleFieldChange('description')}
+                  onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md placeholder:text-gray-400 resize-none"
-                  {...formik.getFieldProps('description')}
                 />
               </div>
 

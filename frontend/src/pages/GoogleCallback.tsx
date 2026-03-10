@@ -10,9 +10,9 @@ const GoogleCallback = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Get tokens from URL parameters
-      const accessToken = searchParams.get('accessToken');
-      const refreshToken = searchParams.get('refreshToken');
+      // Get tokens from URL parameters (backend sends 'access' and 'refresh')
+      const accessToken = searchParams.get('access') || searchParams.get('accessToken');
+      const refreshToken = searchParams.get('refresh') || searchParams.get('refreshToken');
       const errorParam = searchParams.get('error');
 
       if (errorParam) {
@@ -29,11 +29,13 @@ const GoogleCallback = () => {
           localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('refreshToken', refreshToken);
 
-          // Refresh user data
+          // Refresh user data and wait for it to complete
           await refreshUser();
 
-          // Redirect to dashboard
-          navigate('/dashboard');
+          // Small delay to ensure state is fully updated
+          setTimeout(() => {
+            navigate('/dashboard', { replace: true });
+          }, 100);
         } catch (err) {
           console.error('Error storing tokens:', err);
           setError('Failed to complete authentication. Please try again.');

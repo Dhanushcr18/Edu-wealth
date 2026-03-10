@@ -26,14 +26,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
       
+      setLoading(true);
       const response = await api.get('/me');
       setUser(response.data);
+      setLoading(false);
     } catch (error) {
       console.error('Failed to refresh user:', error);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       setUser(null);
-    } finally {
       setLoading(false);
     }
   };

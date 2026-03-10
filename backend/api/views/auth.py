@@ -250,7 +250,7 @@ def google_auth(request):
     Redirect to Google OAuth consent screen.
     """
     google_client_id = os.getenv('GOOGLE_CLIENT_ID')
-    google_callback_url = os.getenv('GOOGLE_CALLBACK_URL', 'http://127.0.0.1:8000/api/auth/google/callback')
+    google_callback_url = os.getenv('GOOGLE_CALLBACK_URL') or request.build_absolute_uri('/api/auth/google/callback')
     
     if not google_client_id:
         return Response(
@@ -296,7 +296,7 @@ def google_callback(request):
         # Exchange code for tokens
         google_client_id = os.getenv('GOOGLE_CLIENT_ID')
         google_client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-        google_callback_url = os.getenv('GOOGLE_CALLBACK_URL', 'http://127.0.0.1:8000/api/auth/google/callback')
+        google_callback_url = os.getenv('GOOGLE_CALLBACK_URL') or request.build_absolute_uri('/api/auth/google/callback')
         
         token_response = requests.post('https://oauth2.googleapis.com/token', data={
             'code': code,
@@ -332,18 +332,24 @@ def google_callback(request):
             frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
             return redirect(f"{frontend_url}/login?error=invalid_user_info")
         
-        user, created = User.objects.get_or_create(
-            google_id=google_id,
-            defaults={
-                'email': email,
-                'name': user_info.get('name', email),
-            }
-        )
-        
-        # If user exists with email but no google_id, link accounts
-        if not created and not user.google_id:
-            user.google_id = user_info['id']
-            user.save()
+        # Try to find user by google_id first, then by email
+        user = None
+        try:
+            user = User.objects.get(google_id=google_id)
+        except User.DoesNotExist:
+            try:
+                # If no user with google_id, check if email exists
+                user = User.objects.get(email=email)
+                # Link the google account to existing user
+                user.google_id = google_id
+                user.save()
+            except User.DoesNotExist:
+                # Create new user if neither google_id nor email exists
+                user = User.objects.create(
+                    email=email,
+                    name=user_info.get('name', email),
+                    google_id=google_id
+                )
         
         # Generate tokens
         tokens = generate_tokens_for_user(user)

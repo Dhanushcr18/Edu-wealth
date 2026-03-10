@@ -5,8 +5,11 @@ const envUrl = (import.meta as any).env?.VITE_API_URL as string | undefined;
 const isLocal = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 );
-// Force 8000 on local to avoid stale env pointing to 4000
-const API_URL = isLocal ? 'http://127.0.0.1:8000' : (envUrl || 'http://127.0.0.1:8000');
+// Prefer the active hostname when running locally so Chrome keeps same loopback interface
+const localApiUrl = typeof window !== 'undefined'
+  ? `${window.location.protocol}//${window.location.hostname}:8000`
+  : 'http://127.0.0.1:8000';
+const API_URL = isLocal ? localApiUrl : (envUrl || localApiUrl);
 
 // Log API base URL once on init to help debug env issues
 // eslint-disable-next-line no-console
@@ -47,7 +50,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           const response = await axios.post(`${API_URL}/api/auth/refresh`, {
-            refreshToken,
+            refresh_token: refreshToken,
           });
 
           const { accessToken } = response.data;
