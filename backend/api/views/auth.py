@@ -20,6 +20,10 @@ from ..utils.google_oauth import verify_google_token
 logger = logging.getLogger(__name__)
 
 
+def get_frontend_url() -> str:
+    return os.getenv('FRONTEND_URL', 'http://localhost:3000').rstrip('/')
+
+
 def generate_tokens_for_user(user: User) -> Dict[str, str]:
     """Generate access and refresh tokens for a user."""
     refresh = JWTRefreshToken.for_user(user)
@@ -283,13 +287,13 @@ def google_callback(request):
     code: Any = request.GET.get('code')  # type: ignore
     error: Any = request.GET.get('error')  # type: ignore
     
+    frontend_url = get_frontend_url()
+
     if error:
         # Redirect to frontend with error
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         return redirect(f"{frontend_url}/login?error={error}")
     
     if not code:
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         return redirect(f"{frontend_url}/login?error=no_code")
     
     try:
@@ -308,14 +312,12 @@ def google_callback(request):
         token_data: Dict[str, Any] = token_response.json()
         
         if 'error' in token_data:
-            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
             error_msg = token_data.get('error', 'unknown')
             return redirect(f"{frontend_url}/login?error={error_msg}")
         
         # Get user info from Google
         access_token = token_data.get('access_token', '')
         if not access_token:
-            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
             return redirect(f"{frontend_url}/login?error=no_access_token")
         
         user_info_response = requests.get(
@@ -329,7 +331,6 @@ def google_callback(request):
         email = user_info.get('email')
         
         if not google_id or not email:
-            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
             return redirect(f"{frontend_url}/login?error=invalid_user_info")
         
         # Try to find user by google_id first, then by email
@@ -355,12 +356,10 @@ def google_callback(request):
         tokens = generate_tokens_for_user(user)
         
         # Redirect to frontend with tokens
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         redirect_url = f"{frontend_url}/auth/callback?access={tokens['access_token']}&refresh={tokens['refresh_token']}"
         return redirect(redirect_url)
         
     except Exception as e:
         logger.error(f"Google OAuth error: {str(e)}")
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         return redirect(f"{frontend_url}/login?error=auth_failed")
 
