@@ -88,7 +88,7 @@ const AddExpense = () => {
   });
 
   // Clear error when user starts typing
-  const handleFieldChange = (field: string) => (e: any) => {
+  const handleFieldChange = () => (e: any) => {
     setError('');
     setSubmitAttempted(false);
     formik.handleChange(e);
@@ -297,7 +297,7 @@ const AddExpense = () => {
                   id="category"
                   name="category"
                   value={formik.values.category}
-                  onChange={handleFieldChange('category')}
+                  onChange={handleFieldChange()}
                   onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
                 >
@@ -324,7 +324,7 @@ const AddExpense = () => {
                   type="text"
                   placeholder="e.g., Burger, Coffee, Movie Ticket"
                   value={formik.values.itemName}
-                  onChange={handleFieldChange('itemName')}
+                  onChange={handleFieldChange()}
                   onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md placeholder:text-gray-400"
                 />
@@ -349,7 +349,7 @@ const AddExpense = () => {
                     step="0.01"
                     placeholder="60"
                     value={formik.values.amount}
-                    onChange={handleFieldChange('amount')}
+                    onChange={handleFieldChange()}
                     onBlur={formik.handleBlur}
                     className="w-full pl-14 pr-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-bold text-xl shadow-sm hover:shadow-md placeholder:text-gray-400"
                   />
@@ -370,7 +370,7 @@ const AddExpense = () => {
                   rows={4}
                   placeholder="Any additional notes..."
                   value={formik.values.description}
-                  onChange={handleFieldChange('description')}
+                  onChange={handleFieldChange()}
                   onBlur={formik.handleBlur}
                   className="w-full px-5 py-4 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-gray-700 font-medium shadow-sm hover:shadow-md placeholder:text-gray-400 resize-none"
                 />
